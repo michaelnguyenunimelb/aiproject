@@ -7,7 +7,9 @@ from collections import deque
 
 BOARD_N = 8
 
-def generate_jump_moves(coord: Coord, board: dict[Coord, CellState], visited: set[Coord], path, start_coord, moves):
+# recursively finds all jump moves starting from a certain coord and appends them to moves
+def generate_jump_moves(coord: Coord, board: dict[Coord, CellState], visited: set[Coord], 
+        path: list[Direction], start_coord: Coord, moves: list[(MoveAction, Coord)]):
     if coord in visited:
         return
     
@@ -31,6 +33,7 @@ def generate_jump_moves(coord: Coord, board: dict[Coord, CellState], visited: se
             moves.append((MoveAction(coord=start_coord, _directions=new_path), next_next_square))
             generate_jump_moves(next_next_square, board, visited, new_path, start_coord, moves)
 
+
 def generate_moves(coord: Coord, board: dict[Coord, CellState]) -> list[(MoveAction, Coord)]:
     directions = [Direction.Down, Direction.DownLeft, Direction.DownRight, Direction.Left, Direction.Right]
     moves = []
@@ -46,28 +49,14 @@ def generate_moves(coord: Coord, board: dict[Coord, CellState]) -> list[(MoveAct
         if board[next_square] == CellState.LILY_PAD:
             moves.append( (MoveAction(coord=coord, _directions=[direc]), next_square) )
     
-    generate_jump_moves(coord, board, set(), [], coord, moves)
+    generate_jump_moves(coord, board, set(), list(), coord, moves)
 
     return moves
 
 def search(
     board: dict[Coord, CellState]
 ) -> list[MoveAction] | None:
-    """
-    This is the entry point for your submission. You should modify this
-    function to solve the search problem discussed in the Part A specification.
-    See `core.py` for information on the types being used here.
 
-    Parameters:
-        `board`: a dictionary representing the initial board state, mapping
-            coordinates to "player colours". The keys are `Coord` instances,
-            and the values are `CellState` instances which can be one of
-            `CellState.RED`, `CellState.BLUE`, or `CellState.LILY_PAD`.
-    
-    Returns:
-        A list of "move actions" as MoveAction instances, or `None` if no
-        solution is possible.
-    """
     start = None
     for coord in board:
         if board[coord] == CellState.RED:
@@ -92,7 +81,7 @@ def search(
                 visited.add(dest)
                 previous[dest] = (current_coord, move)
     
-    # print(render_board(board, ansi=True))
+    print(render_board(board, ansi=True))
 
     if not final_coord:
         return None
@@ -105,6 +94,9 @@ def search(
         final_moves.append(move)
     
     return list(reversed(final_moves))
+
+
+
 
     # The render_board() function is handy for debugging. It will print out a
     # board state in a human-readable format. If your terminal supports ANSI
